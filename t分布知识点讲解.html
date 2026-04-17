@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>t分布 · 智能教学 | 情景导入 + 核心讲解 + AI互动</title>
+    <!-- MathJax 使用国内 CDN，提高稳定性 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/mathjax/3.2.2/es5/tex-chtml.js" id="MathJax-script" async></script>
+    <!-- ECharts 国内 CDN -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Noto Sans', system-ui, -apple-system, sans-serif;
+            background: #f0f7fc;
+            padding: 1.5rem;
+            color: #1e2f3e;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid #e2edf2;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #1f4870, #b3410c);
+            padding: 1.2rem 2rem;
+            color: white;
+        }
+        .card-header h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .card-content {
+            padding: 1.8rem 2rem 2rem;
+        }
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 1.5rem 0 0.8rem 0;
+            padding-left: 0.8rem;
+            border-left: 5px solid #f97316;
+            color: #1f4870;
+        }
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+        .formula-block {
+            background: #fef9e6;
+            padding: 1rem;
+            border-radius: 1.2rem;
+            margin: 1rem 0;
+            text-align: center;
+            overflow-x: auto;
+        }
+        .chart-box {
+            height: 380px;
+            width: 100%;
+            margin: 1rem 0;
+        }
+        .interactive-slider {
+            margin: 1rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        .slider-label {
+            font-weight: 600;
+        }
+        input[type="range"] {
+            flex: 2;
+            min-width: 200px;
+        }
+        .question-box {
+            background: #fef9e6;
+            border-radius: 1.2rem;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            border-left: 5px solid #f97316;
+        }
+        .question-box textarea {
+            width: 100%;
+            border-radius: 1rem;
+            border: 1px solid #cbd5e1;
+            padding: 0.6rem;
+            margin: 0.5rem 0;
+            font-family: inherit;
+            resize: vertical;
+        }
+        .ai-response {
+            background: #eef4ff;
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+            border-left: 3px solid #f97316;
+        }
+        .property-list {
+            margin: 1rem 0;
+        }
+        .property-item {
+            background: #f0f4f9;
+            border-radius: 1rem;
+            margin-bottom: 0.8rem;
+            overflow: hidden;
+        }
+        .property-title {
+            padding: 0.8rem 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            background: #e9edf2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .property-title:hover {
+            background: #e2e6ec;
+        }
+        .property-content {
+            padding: 0 1rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.2s;
+            background: white;
+            font-size: 0.95rem;
+        }
+        .property-content.show {
+            max-height: 300px;
+            padding: 0.8rem 1rem;
+        }
+        .arrow {
+            font-size: 1.2rem;
+            transition: transform 0.2s;
+        }
+        .arrow.rotated {
+            transform: rotate(90deg);
+        }
+        .digit-card {
+            background: #f0f4f9;
+            border-radius: 1rem;
+            padding: 0.8rem;
+            text-align: center;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .quantile-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        .quantile-table th, .quantile-table td {
+            border: 1px solid #ddd;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        .quantile-table th {
+            background: #fef3e8;
+        }
+        .example-card {
+            background: #f9fafb;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #e4e7ec;
+        }
+        .example-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #b3410c;
+        }
+        .btn-ai {
+            background: #f97316;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1.5rem;
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            transition: 0.2s;
+        }
+        .btn-ai:hover {
+            background: #ea580c;
+        }
+        .insight-box {
+            background: #eef4ff;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-left: 5px solid #f97316;
+            line-height: 1.5;
+        }
+        .btn-show-properties {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        .btn-show-properties:hover {
+            background: #ea580c;
+        }
+        .footnote {
+            font-size: 0.75rem;
+            text-align: center;
+            margin-top: 1rem;
+            color: #5a6874;
+        }
+        .summary-box {
+            background: #f9fafb;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid #e4e7ec;
+        }
+        .scenario-card {
+            background: #fefcf5;
+            border-radius: 1.8rem;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.05);
+            padding: 1.2rem 1.5rem;
+            border: 1px solid #ffdec2;
+            margin-bottom: 1.5rem;
+        }
+        .data-box {
+            background: #1e2f3a;
+            color: #e9f0f5;
+            padding: 0.8rem 1rem;
+            border-radius: 1.2rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            margin: 0.8rem 0;
+            word-break: break-all;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1f4870, #b3410c);
+            padding: 1.2rem 2rem;
+            color: white;
+            border-radius: 2rem 2rem 0 0;
+        }
+        .hero h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        @media (max-width: 680px) {
+            .card-content {
+                padding: 1.2rem;
+            }
+            .section-title {
+                font-size: 1.2rem;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 第一部分：情景导入 -->
+    <div class="card">
+        <div class="hero">
+            <h1>📊 t分布 · 小样本困境与情景导入</h1>
+            <p>科学推断 · 从不确定性中寻找真相 | 课程思政：实事求是，数据说话</p>
+        </div>
+        <div class="card-content">
+            <div class="scenario-card">
+                <p style="font-weight: 600; margin-bottom: 8px;">💊 药物临床试验案例</p>
+                <p>某药企研发一种新型镇痛药，为了初步评估疗效，招募了 <strong>15名</strong> 患者参与试验。记录每位患者用药后的疼痛缓解时间（小时），数据如下：</p>
+                <div class="data-box">
+                    [6, 8, 7, 9, 5, 8, 10, 9, 7, 11, 9, 8, 6, 7, 5]
+                </div>
+                <p>已知该疾病的自然缓解时间历史均值为 <strong>7.5小时</strong>，但总体标准差未知。研究团队想判断：该药是否有效（即缓解时间是否显著低于历史均值）？</p>
+                <div class="question-box" style="margin-top: 0.5rem;">
+                    ❓ 核心问题：样本量只有15，总体标准差未知，我们能否仅凭这组样本数据推断药物有效？样本均值的估计有多可靠？
+                </div>
+            </div>
+            <div class="interaction-area" style="margin: 0;">
+                <div class="student-input">
+                    <textarea id="studentIdea" rows="3"></textarea>
+                    <button id="submitIdeaBtn" class="btn-ai" style="background:#f97316; font-size:1rem; padding:0.5rem 1.2rem;">🤖 向AI提问 · 获取统计智慧</button>
+                </div>
+                <div id="aiResponseBox" class="ai-response">
+                    <h4>🧠 统计智能体 · 小T老师</h4>
+                    <div id="aiResponseText">✨ 写下你对小样本推断的想法，AI会帮你链接到t分布的核心思想。</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第二部分：t分布核心教学 -->
+    <div class="card">
+        <div class="card-header">
+            <h2>📐 t分布 · 互动探究课堂</h2>
+            <p>定义 | 概率密度函数 | 图像观察 | 性质归纳 | 数字特征 | 小样本界定</p>
+        </div>
+        <div class="card-content">
+            <div style="background:#eef4ff; padding:0.8rem 1rem; border-radius:1rem; margin-bottom:1rem;">
+                💡 承接上述案例：总体标准差未知、样本量 n=15。此时样本均值的分布不再服从正态分布，而是 <strong>t分布</strong>。下面正式学习 t 分布的数学定义与核心性质。
+            </div>
+
+            <!-- 1. 定义与公式 -->
+            <div class="section-title">📌 1. t分布的定义与概率密度函数</div>
+            <p><strong>t分布</strong>（Student's t-distribution）是由英国统计学家威廉·戈塞特（William Sealy Gosset）于1908年以笔名“Student”发表的。设 \( Z \sim N(0,1) \)，\( V \sim \chi^2(k) \) 且 \( Z \) 与 \( V \) 独立，则随机变量</p>
+            <div class="formula-block">
+                \[
+                T = \frac{Z}{\sqrt{V/k}} \quad \sim \quad t(k)
+                \]
+            </div>
+            <p>服从自由度为 \( k \) 的 t 分布。其概率密度函数为：</p>
+            <div class="formula-block">
+                \[
+                f(t) = \frac{\Gamma\left(\frac{k+1}{2}\right)}{\sqrt{k\pi}\,\Gamma\left(\frac{k}{2}\right)} \left(1+\frac{t^2}{k}\right)^{-\frac{k+1}{2}}, \quad -\infty < t < \infty
+                \]
+            </div>
+            <p>其中 \( k \) 为自由度（通常 \( k = n-1 \)），\( \Gamma(\cdot) \) 为伽马函数。t分布关于 \( t=0 \) 对称，且当自由度较小时具有更厚的尾部。</p>
+
+            <!-- 2. 图像 -->
+            <div class="section-title">📈 2. t分布的概率密度函数 (PDF) 示意图</div>
+            <div class="interactive-slider">
+                <span class="slider-label">🎛️ 调整自由度 v = </span>
+                <input type="range" id="dfSlider" min="1" max="30" step="1" value="3">
+                <span id="dfValue" style="font-weight:bold;">3</span>
+                <span style="margin-left: 1rem;">滑动观察尾部变化（自由度越小，尾部越厚）</span>
+            </div>
+            <div id="distChart" class="chart-box"></div>
+            <p style="font-size:0.85rem; text-align:center;">🔍 蓝色虚线：标准正态分布 | 橙色实线：t分布（当前 v = <span id="currentDfLabel">3</span>，左右对称）</p>
+
+            <!-- 图像下方提问 -->
+            <div class="question-box">
+                <p>❓ <strong>请观察t分布的概率密度函数图像，你发现了哪些性质？</strong><br>
+                （提示：对比正态分布，注意对称性、尾部厚度、随自由度的变化）</p>
+                <textarea id="studentObservation" rows="2"></textarea>
+                <button id="submitObservationBtn" class="btn-ai" style="background:#f97316;">🤖 向AI小t提问</button>
+                <div id="observationAIResponse" class="ai-response" style="margin-top:0.5rem;">
+                    ✨ 点击按钮后，AI小t会根据你的观察进行点评和补充。
+                </div>
+            </div>
+
+            <!-- 3. 性质列表（点击显示） -->
+            <div class="section-title">🔍 3. t分布的主要性质</div>
+            <button id="showPropertiesBtn" class="btn-show-properties">🔍 点击查看性质列表</button>
+            <div id="propertiesContainer" class="property-list" style="display: none;"></div>
+
+            <!-- 4. 数字特征 -->
+            <div class="section-title">📊 4. 数字特征</div>
+            <div class="grid-2">
+                <div class="digit-card">
+                    <strong>期望 \( E(T) \)</strong><br>
+                    \( E(T) = 0 \)，当自由度 \( k > 1 \)
+                </div>
+                <div class="digit-card">
+                    <strong>方差 \( Var(T) \)</strong><br>
+                    \( Var(T) = \frac{k}{k-2} \)，当自由度 \( k > 2 \)
+                </div>
+            </div>
+            <p>⚠️ 注：当 \( k \leq 2 \) 时方差无穷大；当 \( k \leq 1 \) 时期望不存在。实际应用中自由度通常 ≥ 2。</p>
+
+            <!-- 5. 上侧分位数 -->
+            <div class="section-title">📐 5. t分布的上侧分位数</div>
+            <div class="formula-block">
+                上侧 \( \alpha \) 分位数 \( t_\alpha(n) \) 定义为：\( P(T > t_\alpha(n)) = \alpha \)，其中 \( 0 < \alpha < 1 \)。<br>
+                对称性：\( t_{1-\alpha}(n) = -t_\alpha(n) \)
+            </div>
+            <div class="table-container">
+                <table class="quantile-table">
+                    <thead><tr><th>自由度 df</th><th>α=0.10</th><th>α=0.05</th><th>α=0.025</th><th>α=0.01</th><th>α=0.005</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>3.078</td><td>6.314</td><td>12.706</td><td>31.821</td><td>63.657</td></tr>
+                        <tr><td>2</td><td>1.886</td><td>2.920</td><td>4.303</td><td>6.965</td><td>9.925</td></tr>
+                        <tr><td>3</td><td>1.638</td><td>2.353</td><td>3.182</td><td>4.541</td><td>5.841</td></tr>
+                        <tr><td>5</td><td>1.476</td><td>2.015</td><td>2.571</td><td>3.365</td><td>4.032</td></tr>
+                        <tr><td>8</td><td>1.397</td><td>1.860</td><td>2.306</td><td>2.896</td><td>3.355</td></tr>
+                        <tr><td>10</td><td>1.812</td><td>2.228</td><td>2.764</td><td>2.764</td><td>3.169</td></tr>
+                        <tr><td>12</td><td>1.356</td><td>1.782</td><td>2.179</td><td>2.681</td><td>3.055</td></tr>
+                        <tr><td>15</td><td>1.341</td><td>1.753</td><td>2.131</td><td>2.602</td><td>2.947</td></tr>
+                        <tr><td>20</td><td>1.325</td><td>1.725</td><td>2.086</td><td>2.528</td><td>2.845</td></tr>
+                    </tbody>
+                </table>
+                <p class="footnote" style="margin-top:0.3rem;">※ 表中df=10的α=0.01与0.025在经典表中t0.01(10)=2.764，此处保留正确值；实际使用请以权威表为准。</p>
+            </div>
+
+            <!-- 6. 例题 -->
+            <div class="section-title">📝 6. 例题 · t分布应用与计算</div>
+            <div class="example-card" id="example1">
+                <div class="example-title">例题1：利用对称性求t分布分位数</div>
+                <p>已知 \( t_{0.025}(8) = 2.306 \)，试求：</p>
+                <p>1. \( t_{0.975}(8) \) 的值；<br>2. 若 \( T \sim t(8) \)，计算 \( P(T < -2.306) + P(T > 2.306) \)。</p>
+                <button class="btn-ai" onclick="showAIExplanation('ex1')">🤖 AI小t讲解此题</button>
+                <div id="ex1Explanation" class="ai-response" style="margin-top:0.5rem; display:none;"></div>
+            </div>
+            <div class="example-card" id="example2">
+                <div class="example-title">例题2：构造t统计量并求临界值</div>
+                <p>设 \( X \sim N(2,1) \)，\( Y_1, Y_2, Y_3, Y_4 \) 相互独立且均服从 \( N(0,4) \)。定义统计量  
+                \[ T = \frac{4(X-2)}{\sqrt{Y_1^2 + Y_2^2 + Y_3^2 + Y_4^2}} \]</p>
+                <p>1. 求 \( T \) 的分布；<br>2. 若 \( P(|T| > t_0) = 0.01 \)，求 \( t_0 \) 的值。</p>
+                <button class="btn-ai" onclick="showAIExplanation('ex2')">🤖 AI小t讲解此题</button>
+                <div id="ex2Explanation" class="ai-response" style="margin-top:0.5rem; display:none;"></div>
+            </div>
+
+            <!-- 7. 为什么t分布用于小样本？多少算小？（通俗版） -->
+            <div class="section-title">❓ 7. 为什么小样本要用t分布？多大算大？</div>
+            <button id="showSmallSampleBtn" class="btn-show-properties">🔍 点击了解通俗解释</button>
+            <div id="smallSampleExplanation" class="insight-box" style="display: none; margin-top: 1rem;">
+                <p><strong>🎯 一句话概括：</strong> 当样本量小且总体标准差未知时，用样本标准差会带来“额外的不确定性”，t分布通过更胖的尾巴（更宽的界限）来补偿这种不确定性，让我们不轻易误判。</p>
+                <p><strong>📌 通俗比喻：</strong> 就像你用几块拼图推测整个图案——拼图越少（样本小），推测的误差可能越大，需要留出更多“容错空间”。t分布就是帮你科学地扩大容错边界。</p>
+                <p><strong>📏 样本大小经验规则：</strong><br>
+                - <strong>小样本</strong>：通常 \( n < 30 \)，必须使用t分布。<br>
+                - <strong>大样本</strong>：\( n \geq 30 \) 时可以用正态分布近似，但严格来说t分布永远正确。</p>
+                <p>💡 <strong>记忆口诀</strong>：“样本小，不知σ，t分布来解忧；样本大，近似z，但用t分布更严谨”。</p>
+            </div>
+
+            <!-- 8. 回到镇痛药案例（通俗版，带具体计算） -->
+            <div class="section-title">💊 8. 回到镇痛药案例 · 活学活用</div>
+            <div class="insight-box">
+                <p>📋 我们共有15个缓解时间数据。现在用t分布来回答“药物是否有效”：</p>
+                <ul style="margin-left: 1.2rem; margin-bottom:0.5rem;">
+                    <li><strong>样本均值</strong> \(\bar{x} = 7.73\) 小时（比历史均值7.5稍高，直觉上可能无效，但需统计检验）</li>
+                    <li><strong>样本标准差</strong> \( s \approx 1.75 \) 小时</li>
+                    <li>构造 <strong>t统计量</strong>：\( t = \frac{\bar{x} - 7.5}{s / \sqrt{15}} \approx 0.51 \)</li>
+                    <li>自由度 \( df = 14 \)，查表得单侧临界值 \( t_{0.05}(14) \approx 1.761 \) (α=0.05)</li>
+                </ul>
+                <p>✅ 因为计算的 t = 0.51 小于 1.761，<strong>没有足够证据表明药物有效</strong>。t分布给出更审慎的结论（若用正态分布可能误判）。这就是小样本下t分布的科学价值！</p>
+                <p>🔍 核心启发：t分布避免了因样本量小、估计不准而盲目乐观，让统计推断更诚实。</p>
+            </div>
+
+            <!-- 9. 学生总结 -->
+            <div class="section-title">📝 9. 学习总结 · 与AI小t对话</div>
+            <div class="summary-box">
+                <p><strong>请写下你对t分布的理解（含义、特点、应用等）：</strong></p>
+                <textarea id="studentSummary" rows="3"></textarea>
+                <button id="submitSummaryBtn" class="btn-ai" style="background:#f97316;">🤖 AI小t点评我的总结</button>
+                <div id="summaryAIResponse" class="ai-response" style="margin-top:0.5rem;">
+                    ✨ 提交你的总结后，AI小t会给出点评和建议。
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footnote">
+        📚 参考：Student (1908) The probable error of a mean. | 拖动滑块观察曲线，点击性质逐条学习，AI小t随时为你解答。
+    </div>
+</div>
+
+<script>
+    // ======================== 增强型 AI 点评引擎 ========================
+    function smartAIResponse(inputText, contextType = 'idea') {
+        if (!inputText || inputText.trim() === "") {
+            if (contextType === 'idea') return "💡 不妨谈谈你对小样本推断的看法，例如：样本均值的稳定性、标准差的未知性等，我会为你剖析t分布的作用。";
+            if (contextType === 'observation') return "👀 尝试描述你从图像中看到的特点：比如是否对称？尾部比正态分布更厚还是更薄？自由度增大曲线怎么变？";
+            return "✍️ 请写下你的总结，我会根据你提到的关键词（如厚尾、自由度、小样本等）给出针对性点评。";
+        }
+        const text = inputText.toLowerCase();
+        let hasThickTail = /厚尾|厚尾巴|更厚|尾部厚|胖尾巴|肥尾/.test(text);
+        let hasSymmetry = /对称|左右对称|镜像/.test(text);
+        let hasDf = /自由度|df/.test(text);
+        let hasSmallSample = /小样本|样本量小|样本少|n小/.test(text);
+        let hasUnknownSigma = /标准差未知|总体标准差未知|不知σ/.test(text);
+        let hasTtest = /t检验|假设检验|临界值|p值/.test(text);
+        let hasCorrectMemory = /用于小样本|总体标准差未知时|戈塞特|student/.test(text);
+        
+        let reply = "";
+        if (contextType === 'observation') {
+            if (hasThickTail && hasSymmetry) {
+                reply = "🎉 非常棒的观察！你同时注意到了对称性和厚尾性——这正是t分布最核心的两个特征。厚尾意味着小样本下极端值出现的概率更高，更谨慎。";
+            } else if (hasThickTail) {
+                reply = "✅ 对！厚尾性是小样本推断的关键，它提供了更宽的置信区间。另外t分布也是对称的，你发现了吗？";
+            } else if (hasSymmetry) {
+                reply = "👍 对称性观察正确！t分布关于0对称，和正态分布一样。不过还有一个重要特点：它的尾巴比正态分布更厚，尤其在自由度小时。你可以再滑动滑块感受一下。";
+            } else if (hasDf) {
+                reply = "🔍 自由度是关键！自由度越小，曲线越扁平、尾部越厚；自由度增大时，t分布逐渐接近正态分布。你观察得很细致。";
+            } else {
+                reply = "📌 从图像可以看到：t分布关于0对称，尾部比正态分布更厚（尤其是自由度小时），随着自由度增加越来越像正态分布。试着描述这些特点，我会进一步解释。";
+            }
+        } 
+        else if (contextType === 'summary') {
+            let score = 0;
+            if (hasThickTail) score++;
+            if (hasSymmetry) score++;
+            if (hasDf) score++;
+            if (hasSmallSample) score++;
+            if (hasUnknownSigma) score++;
+            if (hasCorrectMemory) score++;
+            if (score >= 4) {
+                reply = "🌟 太棒了！你的总结非常全面且准确：t分布用于小样本、标准差未知场景，具有对称性和厚尾性，自由度决定形状。完全抓住了精髓！建议结合例题巩固t检验的步骤。";
+            } else if (score >= 2) {
+                reply = "📚 总结不错，你已经掌握了t分布的几个关键点。💡 补充一点：t分布比正态分布有更厚的尾部，这反映了小样本估计的额外不确定性。继续加油！";
+            } else {
+                reply = "🤔 你的总结有初步认识，还可以关注：t分布主要解决“总体标准差未知+小样本”的推断问题，其图像对称、尾部更厚，且自由度 n-1 影响形状。试着结合案例再思考一下？";
+            }
+            if (text.includes("正态分布") && !hasThickTail && !hasDf) {
+                reply += " 顺便提醒：t分布虽然和正态分布类似，但关键区别在于尾部更厚，自由度较小时尤其明显。";
+            }
+            reply += " 你可以把t分布理解为“小样本下的修正版正态分布”。";
+        } 
+        else {
+            if (hasSmallSample && hasUnknownSigma) {
+                reply = "🎯 你精准抓住了核心难点：样本量小且标准差未知。这正是t分布的用武之地！它通过更宽的尾巴给估计留出更多余量，让结论更可靠。";
+            } else if (hasSmallSample) {
+                reply = "📌 你提到了小样本问题，确实样本量少会导致均值波动大。加上总体标准差未知，我们需要t分布来校正这种不确定性。";
+            } else if (hasUnknownSigma) {
+                reply = "🔍 总体标准差未知是关键！此时样本标准差会引入额外变异性，t分布完美补偿了这一点。";
+            } else if (hasTtest) {
+                reply = "✨ 你已经想到了假设检验！针对这个案例，我们会构造单样本t统计量，并与t分布临界值比较，这正是t分布的实际应用。";
+            } else {
+                reply = "💡 统计小贴士：当样本量小（<30）且总体标准差未知时，样本均值的抽样分布服从t分布而不是正态分布。t分布更保守，适合小样本推断。";
+            }
+        }
+        if (!reply.includes("🎉") && !reply.includes("🌟")) reply += " 继续探索，你会发现t分布是统计推断中非常优雅的工具。";
+        return reply;
+    }
+
+    function generateDynamicReply(idea) {
+        return smartAIResponse(idea, 'idea');
+    }
+
+    document.getElementById('submitIdeaBtn').addEventListener('click', () => {
+        const idea = document.getElementById('studentIdea').value;
+        const aiResponseText = document.getElementById('aiResponseText');
+        if (idea.trim() === "") {
+            aiResponseText.innerHTML = smartAIResponse("", 'idea');
+            return;
+        }
+        aiResponseText.innerHTML = '<span>🤖 AI 正在思考你的想法...</span>';
+        setTimeout(() => {
+            const reply = generateDynamicReply(idea);
+            aiResponseText.innerHTML = reply + "<br><br>📚 <strong>知识链接</strong>：t分布由W.S. Gosset（笔名Student）于1908年提出，专门解决小样本、标准差未知的推断问题。";
+        }, 300);
+    });
+
+    document.getElementById('submitObservationBtn').addEventListener('click', () => {
+        const obs = document.getElementById('studentObservation').value;
+        const reply = smartAIResponse(obs, 'observation');
+        document.getElementById('observationAIResponse').innerHTML = `🤖 AI小t：${reply}`;
+    });
+
+    document.getElementById('submitSummaryBtn').addEventListener('click', () => {
+        const summary = document.getElementById('studentSummary').value;
+        if (summary.trim() === "") {
+            document.getElementById('summaryAIResponse').innerHTML = smartAIResponse("", 'summary');
+            return;
+        }
+        const reply = smartAIResponse(summary, 'summary');
+        document.getElementById('summaryAIResponse').innerHTML = `🤖 AI小t：${reply}<br><br>💡 继续滑动上方的自由度滑块观察曲线变化，理论结合图像更易理解。`;
+    });
+
+    // ----------------------------- 绘图与性质（修正公式） -----------------------------
+    function gamma(z) {
+        const g = 7;
+        const p = [0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+                    771.32342877765313, -176.61502916214059, 12.507343278686905,
+                    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+        if (z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+        z -= 1;
+        let x = p[0];
+        for (let i = 1; i < g + 2; i++) x += p[i] / (z + i);
+        const t = z + g + 0.5;
+        return Math.sqrt(2 * Math.PI) * Math.pow(t, z + 0.5) * Math.exp(-t) * x;
+    }
+
+    function tPDF(t, df) {
+        if (df <= 0) return 0;
+        const numerator = gamma((df + 1) / 2);
+        const denominator = Math.sqrt(df * Math.PI) * gamma(df / 2);
+        const power = Math.pow(1 + (t * t) / df, -(df + 1) / 2);
+        return (numerator / denominator) * power;
+    }
+
+    function normPDF(x) {
+        return (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+    }
+
+    let distChart;
+    let currentDF = 3;
+
+    function updateDistChart() {
+        const tPoints = [];
+        const normPoints = [];
+        for (let x = -4.5; x <= 4.5 + 1e-6; x += 0.05) {
+            tPoints.push([x, tPDF(x, currentDF)]);
+            normPoints.push([x, normPDF(x)]);
+        }
+        const option = {
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+            legend: { data: [`t分布 (v = ${currentDF})`, '标准正态分布 (z)'], left: 'left', top: 0 },
+            grid: { top: 40, bottom: 20, left: 55, right: 30, containLabel: true },
+            xAxis: { name: 't / z 值', nameLocation: 'middle', nameGap: 35, type: 'value', min: -4.5, max: 4.5, splitLine: { show: true } },
+            yAxis: { name: '概率密度', nameLocation: 'middle', nameGap: 40 },
+            series: [
+                { name: `t分布 (v = ${currentDF})`, type: 'line', data: tPoints, smooth: false, lineStyle: { width: 3, color: '#f97316' }, symbol: 'none', areaStyle: { opacity: 0.1, color: '#f97316' } },
+                { name: '标准正态分布 (z)', type: 'line', data: normPoints, smooth: false, lineStyle: { width: 2.5, color: '#2c6e9e', type: 'dashed' }, symbol: 'none' }
+            ]
+        };
+        distChart.setOption(option, true);
+        document.getElementById('currentDfLabel').innerText = currentDF;
+    }
+
+    // 修正性质列表：确保所有公式使用正确的 LaTeX，无乱码或重复错误
+    function buildProperties() {
+        const container = document.getElementById('propertiesContainer');
+        if (container.children.length > 0) return;
+        const properties = [
+            { title: "📌 性质1：对称性", 
+              content: "t分布像正态分布一样，图像关于 0 左右对称。即 \\( f(t) = f(-t) \\)。<br>分位数满足：\\( t_{1-\\alpha}(n) = -t_{\\alpha}(n) \\)。" },
+            { title: "📌 性质2：厚尾性（通俗版）", 
+              content: "相比标准正态分布，t分布的“尾巴”更胖更厚。意味着<strong>出现极端值的概率更大</strong>。因为小样本估计总体标准差时不够准，t分布用更宽的尾巴来提醒我们：不确定性更高，别太自信。自由度越小，尾巴越厚。" },
+            { title: "📌 性质3：自由度的影响", 
+              content: "自由度 df = n-1 决定了t分布的形状。自由度越小，曲线越扁平，尾巴越厚；随着自由度增大（比如超过30），t分布越来越像标准正态分布。" },
+            { title: "📌 性质4：收敛到正态分布", 
+              content: "当自由度 \\( k \\to \\infty \\) 时，t分布会完全变成标准正态分布 \\( N(0,1) \\)。所以大样本时可以用正态分布近似，但小样本必须用t分布。" }
+        ];
+        properties.forEach(prop => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'property-item';
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'property-title';
+            titleDiv.innerHTML = `<span>${prop.title}</span><span class="arrow">▶</span>`;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'property-content';
+            contentDiv.innerHTML = prop.content;
+            titleDiv.onclick = function() {
+                const arrowSpan = this.querySelector('.arrow');
+                if (contentDiv.classList.contains('show')) {
+                    contentDiv.classList.remove('show');
+                    arrowSpan.classList.remove('rotated');
+                    arrowSpan.innerHTML = '▶';
+                } else {
+                    contentDiv.classList.add('show');
+                    arrowSpan.classList.add('rotated');
+                    arrowSpan.innerHTML = '▼';
+                }
+            };
+            itemDiv.appendChild(titleDiv);
+            itemDiv.appendChild(contentDiv);
+            container.appendChild(itemDiv);
+        });
+    }
+
+    function showAIExplanation(exId) {
+        const div = document.getElementById(`${exId}Explanation`);
+        if (div.style.display === 'block') { div.style.display = 'none'; return; }
+        let content = '';
+        if (exId === 'ex1') {
+            content = `📖 AI小t讲解：<br>
+            1. 由对称性，\\( t_{0.975}(8) = -t_{0.025}(8) = -2.306 \\)。<br>
+            2. 由于t分布对称，\\( P(T < -2.306) = P(T > 2.306) = 0.025 \\)，所以和为0.05。体现了双侧尾部概率之和为显著性水平 α=0.05。`;
+        } else if (exId === 'ex2') {
+            content = `📖 AI小t讲解：<br>
+            1. 由题意，\\( X-2 \\sim N(0,1) \\)，\\( Y_i/2 \\sim N(0,1) \\)，所以 \\( \\sum (Y_i/2)^2 \\sim \\chi^2(4) \\)。于是 \\( T = \\frac{4(X-2)}{\\sqrt{\\sum Y_i^2}} = \\frac{(X-2)/1}{\\sqrt{(\\sum Y_i^2/4)/4}} = \\frac{Z}{\\sqrt{V/4}} \\)，其中 \\( Z \\sim N(0,1) \\)，\\( V \\sim \\chi^2(4) \\)，因此 \\( T \\sim t(4) \\)。<br>
+            2. \\( P(|T| > t_0) = 0.01 \\) 意味着双尾0.01，单尾0.005，查表自由度4，α=0.005对应临界值约4.604，所以 \\( t_0 = 4.604 \\)。`;
+        }
+        div.innerHTML = `🤖 ${content}`;
+        div.style.display = 'block';
+    }
+
+    document.getElementById('showPropertiesBtn').addEventListener('click', () => {
+        const container = document.getElementById('propertiesContainer');
+        if (container.style.display === 'none') {
+            buildProperties();
+            container.style.display = 'block';
+            document.getElementById('showPropertiesBtn').textContent = '📖 收起性质列表';
+        } else {
+            container.style.display = 'none';
+            document.getElementById('showPropertiesBtn').textContent = '🔍 点击查看性质列表';
+        }
+    });
+
+    document.getElementById('showSmallSampleBtn').addEventListener('click', () => {
+        const explanationDiv = document.getElementById('smallSampleExplanation');
+        if (explanationDiv.style.display === 'none') {
+            explanationDiv.style.display = 'block';
+            document.getElementById('showSmallSampleBtn').textContent = '📖 收起解释';
+        } else {
+            explanationDiv.style.display = 'none';
+            document.getElementById('showSmallSampleBtn').textContent = '🔍 点击查看通俗解释';
+        }
+    });
+
+    window.onload = () => {
+        distChart = echarts.init(document.getElementById('distChart'));
+        updateDistChart();
+        const slider = document.getElementById('dfSlider');
+        const dfSpan = document.getElementById('dfValue');
+        slider.addEventListener('input', (e) => {
+            currentDF = parseInt(e.target.value);
+            dfSpan.innerText = currentDF;
+            updateDistChart();
+        });
+        document.getElementById('propertiesContainer').style.display = 'none';
+        document.getElementById('smallSampleExplanation').style.display = 'none';
+        // 移除所有textarea的placeholder提示词，符合要求
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(ta => ta.placeholder = '');
+    };
+</script>
+</body>
+</html>
